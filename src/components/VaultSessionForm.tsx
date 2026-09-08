@@ -12,14 +12,21 @@
  */
 import { useState } from "react";
 import {
-  Paper,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
   Stack,
   TextField,
   Typography,
   Button,
   Alert,
+  Grid,
+  Box,
 } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import BadgeIcon from "@mui/icons-material/Badge";
 import { useVaultSession, type VaultSessionState } from "@/hooks/useVaultSession";
+import { m3Tokens } from "@/theme/m3Theme";
 
 function VaultSessionFormInner({
   initial,
@@ -38,55 +45,35 @@ function VaultSessionFormInner({
       setLocal({ ...local, [field]: e.target.value });
     };
 
+  const fields: { field: keyof VaultSessionState; label: string }[] = [
+    { field: "projectId", label: "Project ID" },
+    { field: "mainContractor", label: "Main Contractor pubkey" },
+    { field: "subcontractor", label: "Subcontractor pubkey" },
+    { field: "certifier", label: "Certifier pubkey" },
+    { field: "adjudicator", label: "Adjudicator pubkey" },
+    { field: "demoAuthority", label: "Demo authority pubkey" },
+  ];
+
   return (
-    <Stack spacing={2}>
-      <TextField
-        label="Project ID"
-        value={local.projectId}
-        onChange={handleChange("projectId")}
-        size="small"
-        fullWidth
-      />
-      <TextField
-        label="Main Contractor pubkey"
-        value={local.mainContractor}
-        onChange={handleChange("mainContractor")}
-        size="small"
-        fullWidth
-      />
-      <TextField
-        label="Subcontractor pubkey"
-        value={local.subcontractor}
-        onChange={handleChange("subcontractor")}
-        size="small"
-        fullWidth
-      />
-      <TextField
-        label="Certifier pubkey"
-        value={local.certifier}
-        onChange={handleChange("certifier")}
-        size="small"
-        fullWidth
-      />
-      <TextField
-        label="Adjudicator pubkey"
-        value={local.adjudicator}
-        onChange={handleChange("adjudicator")}
-        size="small"
-        fullWidth
-      />
-      <TextField
-        label="Demo authority pubkey"
-        value={local.demoAuthority}
-        onChange={handleChange("demoAuthority")}
-        size="small"
-        fullWidth
-      />
-      <Stack direction="row" spacing={1}>
+    <Stack spacing={2.5}>
+      <Grid container spacing={2}>
+        {fields.map(({ field, label }) => (
+          <Grid item xs={12} sm={field === "projectId" ? 12 : 6} key={field}>
+            <TextField
+              label={label}
+              value={local[field]}
+              onChange={handleChange(field)}
+              size="small"
+              fullWidth
+            />
+          </Grid>
+        ))}
+      </Grid>
+      <Stack direction="row" spacing={1.5}>
         <Button variant="contained" onClick={() => onSave(local)}>
           Save
         </Button>
-        <Button variant="outlined" color="warning" onClick={onReset}>
+        <Button variant="outlined" color="error" onClick={onReset}>
           Reset session (new project ID)
         </Button>
       </Stack>
@@ -99,34 +86,73 @@ export function VaultSessionForm() {
     useVaultSession();
 
   return (
-    <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-      <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-        Project / Vault Identity
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        These values derive the vault PDA (§1 of the API contract). All roles
-        must use the same project ID and party pubkeys to land on the same
-        vault.
-      </Typography>
-      {/* Keying on the loaded session's identity re-seeds the draft form
-          whenever the underlying session changes (e.g. loaded from storage
-          on mount, or reset), without needing a sync effect. */}
-      <VaultSessionFormInner
-        key={`${session.projectId}:${session.mainContractor}:${session.subcontractor}`}
-        initial={session}
-        onSave={setSession}
-        onReset={() => resetSession()}
-      />
-      {vaultPdaError && (
-        <Alert severity="error" sx={{ mt: 2 }}>
-          {vaultPdaError}
-        </Alert>
-      )}
-      {vaultPda && (
-        <Alert severity="success" sx={{ mt: 2 }}>
-          Vault PDA: {vaultPda.toBase58()}
-        </Alert>
-      )}
-    </Paper>
+    <Accordion
+      defaultExpanded={!vaultPda}
+      disableGutters
+      sx={{
+        mb: 3,
+        borderRadius: "16px !important",
+        border: `1px solid ${m3Tokens.outlineVariant}`,
+        backgroundColor: m3Tokens.surfaceContainerLow,
+        overflow: "hidden",
+        "&::before": { display: "none" },
+      }}
+    >
+      <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ px: 3, py: 1 }}>
+        <Stack direction="row" spacing={1.5} alignItems="center">
+          <Box
+            sx={{
+              width: 32,
+              height: 32,
+              borderRadius: "8px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: m3Tokens.secondaryContainer,
+              color: m3Tokens.onSecondaryContainer,
+            }}
+          >
+            <BadgeIcon fontSize="small" />
+          </Box>
+          <Stack>
+            <Typography variant="subtitle1">Project / Vault Identity</Typography>
+            <Typography variant="caption" sx={{ color: m3Tokens.onSurfaceVariant }}>
+              {vaultPda
+                ? `Vault PDA: ${vaultPda.toBase58().slice(0, 10)}…${vaultPda.toBase58().slice(-6)}`
+                : "Set identity to derive a vault PDA"}
+            </Typography>
+          </Stack>
+        </Stack>
+      </AccordionSummary>
+      <AccordionDetails sx={{ px: 3, pb: 3, pt: 0 }}>
+        <Typography
+          variant="body2"
+          sx={{ color: m3Tokens.onSurfaceVariant, mb: 2.5 }}
+        >
+          These values derive the vault PDA (§1 of the API contract). All
+          roles must use the same project ID and party pubkeys to land on
+          the same vault.
+        </Typography>
+        {/* Keying on the loaded session's identity re-seeds the draft form
+            whenever the underlying session changes (e.g. loaded from storage
+            on mount, or reset), without needing a sync effect. */}
+        <VaultSessionFormInner
+          key={`${session.projectId}:${session.mainContractor}:${session.subcontractor}`}
+          initial={session}
+          onSave={setSession}
+          onReset={() => resetSession()}
+        />
+        {vaultPdaError && (
+          <Alert severity="error" sx={{ mt: 2 }}>
+            {vaultPdaError}
+          </Alert>
+        )}
+        {vaultPda && (
+          <Alert severity="success" sx={{ mt: 2 }}>
+            Vault PDA: {vaultPda.toBase58()}
+          </Alert>
+        )}
+      </AccordionDetails>
+    </Accordion>
   );
 }

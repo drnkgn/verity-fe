@@ -21,16 +21,22 @@ import {
   TextField,
   Button,
   Alert,
+  Box,
 } from "@mui/material";
+import TuneIcon from "@mui/icons-material/Tune";
+import ScheduleIcon from "@mui/icons-material/Schedule";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import { useConnection, useAnchorWallet } from "@solana/wallet-adapter-react";
 import { VaultSessionForm } from "@/components/VaultSessionForm";
 import { VaultStatusCard } from "@/components/VaultStatusCard";
 import { TxExplorerLink } from "@/components/ExplorerLink";
+import { PageHeader } from "@/components/PageHeader";
 import { useVaultSession } from "@/hooks/useVaultSession";
 import { useVault } from "@/hooks/useVault";
 import { getProgram, hasDemoClockInstruction } from "@/lib/program";
 import { PublicKey } from "@solana/web3.js";
 import { BN } from "@coral-xyz/anchor";
+import { m3Tokens } from "@/theme/m3Theme";
 
 export default function DemoControlPage() {
   const { connection } = useConnection();
@@ -46,7 +52,7 @@ export default function DemoControlPage() {
 
   if (!demoEnabled) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
+      <Container maxWidth="md" sx={{ py: 5 }}>
         <Alert severity="warning">
           Demo Control is unavailable — this build&apos;s IDL does not expose
           advance_clock. This is a production build; the demo clock is
@@ -105,24 +111,40 @@ export default function DemoControlPage() {
   };
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Typography variant="h4" fontWeight={700} gutterBottom>
-        Demo Control
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Operator-only. Advances the vault&apos;s clock_offset so the backstop
-        can be crossed live on stage. This instruction only exists in
-        demo/feature-gated builds — it must be absent from production.
-      </Typography>
+    <Container maxWidth="md" sx={{ py: 5 }}>
+      <PageHeader
+        icon={TuneIcon}
+        title="Demo Control"
+        description="Operator-only. Advances the vault's clock_offset so the backstop can be crossed live on stage. This instruction only exists in demo/feature-gated builds — it must be absent from production."
+        accent={m3Tokens.secondaryContainer}
+        onAccent={m3Tokens.onSecondaryContainer}
+      />
 
       <VaultSessionForm />
 
       <VaultStatusCard vaultPda={vaultPda} />
 
-      <Paper variant="outlined" sx={{ p: 2, mt: 2 }}>
-        <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-          Advance clock
-        </Typography>
+      <Paper
+        variant="outlined"
+        sx={{ p: 3, mt: 2.5, mb: 2.5, backgroundColor: m3Tokens.surfaceContainerLow }}
+      >
+        <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 2.5 }}>
+          <Box
+            sx={{
+              width: 32,
+              height: 32,
+              borderRadius: "8px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: m3Tokens.secondaryContainer,
+              color: m3Tokens.onSecondaryContainer,
+            }}
+          >
+            <ScheduleIcon fontSize="small" />
+          </Box>
+          <Typography variant="subtitle1">Advance clock</Typography>
+        </Stack>
         <Stack spacing={2}>
           <TextField
             label="New clock_offset (seconds)"
@@ -132,7 +154,7 @@ export default function DemoControlPage() {
             onChange={(e) => setOffsetSeconds(e.target.value)}
             helperText="Absolute clock_offset value to set, not a delta."
           />
-          <Stack direction="row" spacing={1}>
+          <Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap>
             <Button variant="outlined" onClick={jumpToBackstop} disabled={!vault}>
               Fill offset to reach backstop
             </Button>
@@ -164,11 +186,28 @@ export default function DemoControlPage() {
         </Stack>
       </Paper>
 
-      <Paper variant="outlined" sx={{ p: 2, mt: 2 }}>
-        <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-          Reset for a clean re-run
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
+      <Paper
+        variant="outlined"
+        sx={{ p: 3, backgroundColor: m3Tokens.surfaceContainer, borderColor: "transparent" }}
+      >
+        <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1.5 }}>
+          <Box
+            sx={{
+              width: 32,
+              height: 32,
+              borderRadius: "8px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: m3Tokens.surfaceContainerHighest,
+              color: m3Tokens.onSurfaceVariant,
+            }}
+          >
+            <RestartAltIcon fontSize="small" />
+          </Box>
+          <Typography variant="subtitle1">Reset for a clean re-run</Typography>
+        </Stack>
+        <Typography variant="body2" sx={{ color: m3Tokens.onSurfaceVariant }}>
           PDAs are deterministic per (project_id, subcontractor,
           main_contractor). Re-running the demo against the same project ID
           will hit an already-initialized vault. Use &quot;Reset session (new

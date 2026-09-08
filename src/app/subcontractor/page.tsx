@@ -14,16 +14,20 @@ import {
   Stack,
   Button,
   Alert,
-  Divider,
+  Box,
 } from "@mui/material";
+import HandymanIcon from "@mui/icons-material/Handyman";
+import BoltIcon from "@mui/icons-material/Bolt";
 import { useConnection, useWallet, useAnchorWallet } from "@solana/wallet-adapter-react";
 import { VaultSessionForm } from "@/components/VaultSessionForm";
 import { VaultStatusCard } from "@/components/VaultStatusCard";
 import { TxExplorerLink } from "@/components/ExplorerLink";
+import { PageHeader } from "@/components/PageHeader";
 import { useVaultSession } from "@/hooks/useVaultSession";
 import { useVault } from "@/hooks/useVault";
 import { getProgram } from "@/lib/program";
 import { computeDerivedFields } from "@/lib/vault";
+import { m3Tokens } from "@/theme/m3Theme";
 
 export default function SubcontractorPage() {
   const { connection } = useConnection();
@@ -75,24 +79,40 @@ export default function SubcontractorPage() {
     connected && publicKey && vault && !publicKey.equals(vault.subcontractor);
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Typography variant="h4" fontWeight={700} gutterBottom>
-        Subcontractor
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Watch the vault balance and backstop countdown live. Once the DLP
-        backstop is reached, claim unilaterally — no contractor or
-        certifier signature is required.
-      </Typography>
+    <Container maxWidth="md" sx={{ py: 5 }}>
+      <PageHeader
+        icon={HandymanIcon}
+        title="Subcontractor"
+        description="Watch the vault balance and backstop countdown live. Once the DLP backstop is reached, claim unilaterally — no contractor or certifier signature is required."
+        accent={m3Tokens.tertiaryContainer}
+        onAccent={m3Tokens.onTertiaryContainer}
+      />
 
       <VaultSessionForm />
 
       <VaultStatusCard vaultPda={vaultPda} />
 
-      <Paper variant="outlined" sx={{ p: 2, mt: 2 }}>
-        <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-          Claim release
-        </Typography>
+      <Paper
+        variant="outlined"
+        sx={{ p: 3, mt: 2.5, backgroundColor: m3Tokens.surfaceContainerLow }}
+      >
+        <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 2.5 }}>
+          <Box
+            sx={{
+              width: 32,
+              height: 32,
+              borderRadius: "8px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: m3Tokens.tertiaryContainer,
+              color: m3Tokens.onTertiaryContainer,
+            }}
+          >
+            <BoltIcon fontSize="small" />
+          </Box>
+          <Typography variant="subtitle1">Claim release</Typography>
+        </Stack>
         <Stack spacing={2}>
           {!connected && (
             <Alert severity="info">Connect the subcontractor wallet first.</Alert>
@@ -111,8 +131,10 @@ export default function SubcontractorPage() {
           <Button
             variant="contained"
             color="success"
+            size="large"
             disabled={!canClaim || busy}
             onClick={handleClaim}
+            sx={{ alignSelf: "flex-start" }}
           >
             {busy ? "Claiming…" : "Claim release"}
           </Button>
@@ -129,7 +151,6 @@ export default function SubcontractorPage() {
           )}
         </Stack>
       </Paper>
-      <Divider sx={{ mt: 3 }} />
     </Container>
   );
 }

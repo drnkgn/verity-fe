@@ -6,21 +6,66 @@
  * against the PDA's actual lamport balance per API-CONTRACT §5
  * ("Balance verification... to demonstrate custody is real").
  */
-import { Paper, Stack, Typography, Chip, Divider, Alert } from "@mui/material";
+import { Paper, Stack, Typography, Chip, Divider, Alert, Box, Grid } from "@mui/material";
+import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import { PublicKey } from "@solana/web3.js";
 import { SolAmount } from "./SolAmount";
 import { AddressExplorerLink } from "./ExplorerLink";
 import { BackstopCountdown } from "./BackstopCountdown";
 import { useVault } from "@/hooks/useVault";
 import { computeDerivedFields, vaultStatusToString } from "@/lib/vault";
+import { m3Tokens } from "@/theme/m3Theme";
 
-const STATUS_COLOR: Record<string, "default" | "success" | "warning" | "error" | "info"> = {
-  funded: "info",
-  cpcReleased: "warning",
-  disputed: "error",
-  neutralLocked: "error",
-  closed: "success",
+const STATUS_STYLE: Record<
+  string,
+  { label: string; bg: string; fg: string }
+> = {
+  funded: {
+    label: "Funded",
+    bg: m3Tokens.secondaryContainer,
+    fg: m3Tokens.onSecondaryContainer,
+  },
+  cpcReleased: {
+    label: "CPC released",
+    bg: m3Tokens.tertiaryContainer,
+    fg: m3Tokens.onTertiaryContainer,
+  },
+  disputed: {
+    label: "Disputed",
+    bg: m3Tokens.errorContainer,
+    fg: m3Tokens.onErrorContainer,
+  },
+  neutralLocked: {
+    label: "Neutral locked",
+    bg: m3Tokens.errorContainer,
+    fg: m3Tokens.onErrorContainer,
+  },
+  closed: {
+    label: "Closed",
+    bg: m3Tokens.successContainer,
+    fg: m3Tokens.onSuccessContainer,
+  },
 };
+
+function StatLabel({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Stack spacing={0.5}>
+      <Typography
+        variant="caption"
+        sx={{ color: m3Tokens.onSurfaceVariant, textTransform: "uppercase", letterSpacing: "0.04em" }}
+      >
+        {label}
+      </Typography>
+      {children}
+    </Stack>
+  );
+}
 
 export function VaultStatusCard({ vaultPda }: { vaultPda: PublicKey | null }) {
   const { vault, lamportBalance, loading, error } = useVault(vaultPda);
@@ -48,60 +93,106 @@ export function VaultStatusCard({ vaultPda }: { vaultPda: PublicKey | null }) {
 
   const derived = computeDerivedFields(vault);
   const status = vaultStatusToString(vault.status);
-  const residualAccordingToChain =
-    lamportBalance != null ? lamportBalance : null;
+  const statusStyle = STATUS_STYLE[status] ?? STATUS_STYLE.funded;
 
   return (
-    <Paper variant="outlined" sx={{ p: 2 }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
-        <Typography variant="subtitle1" fontWeight={600}>
-          Vault: <AddressExplorerLink address={vaultPda.toBase58()} />
-        </Typography>
-        <Chip label={status} color={STATUS_COLOR[status] ?? "default"} />
-      </Stack>
-      <Divider sx={{ mb: 2 }} />
-      <Stack spacing={1.5}>
-        <Stack direction="row" spacing={4}>
-          <div>
-            <Typography variant="caption" color="text.secondary">
-              Deposited amount
-            </Typography>
-            <SolAmount lamports={vault.amount} variant="h6" />
-          </div>
-          <div>
-            <Typography variant="caption" color="text.secondary">
-              Released cumulative
-            </Typography>
-            <SolAmount lamports={vault.released_cumulative} variant="h6" />
-          </div>
-          <div>
-            <Typography variant="caption" color="text.secondary">
-              Claimable now
-            </Typography>
-            <SolAmount lamports={derived.claimableNow} variant="h6" />
-          </div>
+    <Paper
+      variant="outlined"
+      sx={{
+        p: 3,
+        backgroundColor: m3Tokens.surfaceContainerLow,
+        borderColor: m3Tokens.outlineVariant,
+      }}
+    >
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="flex-start"
+        sx={{ mb: 2 }}
+        flexWrap="wrap"
+        gap={1}
+      >
+        <Stack direction="row" spacing={1.5} alignItems="center">
+          <Box
+            sx={{
+              width: 40,
+              height: 40,
+              borderRadius: "10px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: m3Tokens.primaryContainer,
+              color: m3Tokens.onPrimaryContainer,
+              flexShrink: 0,
+            }}
+          >
+            <AccountBalanceIcon fontSize="small" />
+          </Box>
+          <Stack>
+            <Typography variant="subtitle1">Vault</Typography>
+            <AddressExplorerLink address={vaultPda.toBase58()} />
+          </Stack>
         </Stack>
+        <Chip
+          label={statusStyle.label}
+          sx={{
+            backgroundColor: statusStyle.bg,
+            color: statusStyle.fg,
+          }}
+        />
+      </Stack>
 
-        {residualAccordingToChain != null && (
-          <Typography variant="body2" color="text.secondary">
+      <Divider sx={{ mb: 2.5 }} />
+
+      <Grid container spacing={3} sx={{ mb: 2.5 }}>
+        <Grid item xs={12} sm={4}>
+          <StatLabel label="Deposited">
+            <SolAmount lamports={vault.amount} variant="h6" />
+          </StatLabel>
+        </Grid>
+        <Grid item xs={12} sm={4}>
+          <StatLabel label="Released cumulative">
+            <SolAmount lamports={vault.released_cumulative} variant="h6" />
+          </StatLabel>
+        </Grid>
+        <Grid item xs={12} sm={4}>
+          <StatLabel label="Claimable now">
+            <SolAmount lamports={derived.claimableNow} variant="h6" />
+          </StatLabel>
+        </Grid>
+      </Grid>
+
+      {lamportBalance != null && (
+        <Box
+          sx={{
+            backgroundColor: m3Tokens.surfaceContainer,
+            borderRadius: "12px",
+            px: 2,
+            py: 1.25,
+            mb: 2.5,
+          }}
+        >
+          <Typography variant="body2" sx={{ color: m3Tokens.onSurfaceVariant }}>
             PDA lamport balance (on-chain, live):{" "}
-            <SolAmount lamports={residualAccordingToChain} variant="body2" /> — cross-checked
+            <SolAmount lamports={lamportBalance} variant="body2" /> — cross-checked
             against amount − released_cumulative to prove custody is real.
           </Typography>
-        )}
+        </Box>
+      )}
 
+      <Stack direction="row" flexWrap="wrap" gap={1.5} sx={{ mb: 2.5 }}>
         <BackstopCountdown
           backstopTs={derived.backstopTs}
           clockOffset={vault.clock_offset.toNumber()}
         />
-
-        <Typography variant="caption" color="text.secondary">
-          Project: {vault.project_id} · Main contractor:{" "}
-          <AddressExplorerLink address={vault.main_contractor.toBase58()} /> ·
-          Subcontractor:{" "}
-          <AddressExplorerLink address={vault.subcontractor.toBase58()} />
-        </Typography>
       </Stack>
+
+      <Typography variant="caption" sx={{ color: m3Tokens.onSurfaceVariant }}>
+        Project: {vault.project_id} · Main contractor:{" "}
+        <AddressExplorerLink address={vault.main_contractor.toBase58()} /> ·
+        Subcontractor:{" "}
+        <AddressExplorerLink address={vault.subcontractor.toBase58()} />
+      </Typography>
     </Paper>
   );
 }

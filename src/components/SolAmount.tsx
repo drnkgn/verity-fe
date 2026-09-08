@@ -8,6 +8,7 @@
 import { Stack, Typography, Tooltip } from "@mui/material";
 import BN from "bn.js";
 import { LAMPORTS_PER_SOL, MYR_PER_SOL } from "@/lib/constants";
+import { m3Tokens } from "@/theme/m3Theme";
 
 function lamportsToSol(lamports: BN | number): number {
   const value = typeof lamports === "number" ? lamports : lamports.toNumber();
@@ -26,11 +27,20 @@ export function SolAmount({
 
   return (
     <Stack direction="row" spacing={1} alignItems="baseline">
-      <Typography variant={variant} component="span" fontWeight={600}>
+      <Typography
+        variant={variant}
+        component="span"
+        fontWeight={700}
+        sx={{ color: m3Tokens.onSurface }}
+      >
         {sol.toLocaleString(undefined, { maximumFractionDigits: 4 })} SOL
       </Typography>
       <Tooltip title="Illustrative rate, demo only — never stored or read on-chain.">
-        <Typography variant="body2" component="span" color="text.secondary">
+        <Typography
+          variant="body2"
+          component="span"
+          sx={{ color: m3Tokens.onSurfaceVariant }}
+        >
           (≈ RM {myr.toLocaleString(undefined, { maximumFractionDigits: 2 })}*)
         </Typography>
       </Tooltip>

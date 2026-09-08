@@ -11,19 +11,12 @@ import {
 } from "@solana/wallet-adapter-react";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
-import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
+import { ThemeProvider, CssBaseline } from "@mui/material";
 import { RPC_ENDPOINT } from "@/lib/constants";
 import { VaultSessionProvider } from "@/hooks/useVaultSession";
+import { theme } from "@/theme/m3Theme";
 
 import "@solana/wallet-adapter-react-ui/styles.css";
-
-const theme = createTheme({
-  palette: {
-    mode: "light",
-    primary: { main: "#1e3a5f" },
-    secondary: { main: "#c9a227" },
-  },
-});
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   const wallets = useMemo(() => [new PhantomWalletAdapter()], []);
