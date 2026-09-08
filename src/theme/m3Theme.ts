@@ -3,56 +3,63 @@
  *
  * MUI's theming API doesn't natively emit M3 tonal palettes, so this module
  * hand-derives the M3 "roles" (primary/secondary/tertiary + their container
- * and on-* pairs, surface variants, outline) from two seed hues and maps
+ * and on-* pairs, surface variants, outline) from three seed hues and maps
  * them onto MUI's palette slots, then layers M3's shape scale, type scale,
  * and component-level shape/elevation conventions on top via `components`
  * overrides.
  *
  * Seed hues:
- *   - Primary: deep indigo-blue (custody, trust, "vault").
- *   - Tertiary/secondary accent: warm amber-gold (value being protected).
+ *   - Primary: royal indigo-blue (custody, trust, "vault").
+ *   - Secondary: slate violet (operator/demo-control accent).
+ *   - Tertiary: warm amber/brass (the retention value being protected).
+ * Surfaces carry a consistent lavender tint rather than near-white, so cards
+ * separate visually from the page without relying only on borders.
  */
 import { createTheme, alpha } from "@mui/material/styles";
 
 // --- M3 tonal roles, hand-picked to sit at M3's conventional tonal stops
 // (40/90/10 light-scheme pairs: base / container / on-container) --------
 const m3 = {
-  primary: "#3956B8", // tone ~40
+  primary: "#3B4FE0",
   onPrimary: "#FFFFFF",
-  primaryContainer: "#DCE1FF", // tone ~90
-  onPrimaryContainer: "#00174A", // tone ~10
+  primaryContainer: "#DCE0FF",
+  onPrimaryContainer: "#101A5C",
 
-  secondary: "#5B5D72", // tone ~40 (neutral-variant harmony)
+  secondary: "#6750A4",
   onSecondary: "#FFFFFF",
-  secondaryContainer: "#DFE1F9",
-  onSecondaryContainer: "#181A2C",
+  secondaryContainer: "#E9DDFF",
+  onSecondaryContainer: "#22005D",
 
-  tertiary: "#8A5300", // tone ~40, warm amber-gold accent
+  tertiary: "#A6650A",
   onTertiary: "#FFFFFF",
-  tertiaryContainer: "#FFDDB1",
-  onTertiaryContainer: "#2B1700",
+  tertiaryContainer: "#FFDDA1",
+  onTertiaryContainer: "#341F00",
 
   error: "#BA1A1A",
   onError: "#FFFFFF",
   errorContainer: "#FFDAD6",
   onErrorContainer: "#410002",
 
-  success: "#2E6E33",
+  success: "#0E8345",
   onSuccess: "#FFFFFF",
-  successContainer: "#B4F3AF",
-  onSuccessContainer: "#002204",
+  successContainer: "#A7F3B8",
+  onSuccessContainer: "#00210D",
 
-  surface: "#FAF8FF",
-  surfaceDim: "#DAD9E0",
+  surface: "#F5F2FF",
+  surfaceDim: "#D6D1E8",
   surfaceContainerLowest: "#FFFFFF",
-  surfaceContainerLow: "#F3F1FA",
-  surfaceContainer: "#EDECF4",
-  surfaceContainerHigh: "#E7E6EF",
-  surfaceContainerHighest: "#E2E1E9",
+  surfaceContainerLow: "#EEEAFB",
+  surfaceContainer: "#E3DFF7",
+  surfaceContainerHigh: "#D9D3F0",
+  surfaceContainerHighest: "#CFC8E9",
   onSurface: "#1B1B21",
   onSurfaceVariant: "#45464F",
   outline: "#767680",
   outlineVariant: "#C6C6D0",
+
+  // Hero-only gradient stops (not a standard M3 role, used for the home
+  // page hero band and reused wherever a "money-shot" banner is wanted).
+  heroGradient: "linear-gradient(135deg, #3B4FE0 0%, #6750A4 45%, #A6650A 100%)",
 } as const;
 
 // M3 shape scale: extra-small 4, small 8, medium 12, large 16, extra-large 28.
@@ -75,10 +82,10 @@ export const theme = createTheme({
       dark: m3.onPrimaryContainer,
     },
     secondary: {
-      main: m3.tertiary,
-      contrastText: m3.onTertiary,
-      light: m3.tertiaryContainer,
-      dark: m3.onTertiaryContainer,
+      main: m3.secondary,
+      contrastText: m3.onSecondary,
+      light: m3.secondaryContainer,
+      dark: m3.onSecondaryContainer,
     },
     error: {
       main: m3.error,

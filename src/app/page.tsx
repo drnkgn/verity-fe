@@ -20,7 +20,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ShieldIcon from "@mui/icons-material/Shield";
 import BoltIcon from "@mui/icons-material/Bolt";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import { m3Tokens } from "@/theme/m3Theme";
+import { m3Tokens as hc } from "@/theme/m3Theme";
 
 const ROLES = [
   {
@@ -29,8 +29,8 @@ const ROLES = [
     description:
       "Fund a retention vault and watch the program refuse any withdrawal attempt after funding — the refusal is structural, not a permission check.",
     icon: EngineeringIcon,
-    container: m3Tokens.primaryContainer,
-    onContainer: m3Tokens.onPrimaryContainer,
+    container: hc.primaryContainer,
+    onContainer: hc.onPrimaryContainer,
   },
   {
     href: "/subcontractor",
@@ -38,8 +38,8 @@ const ROLES = [
     description:
       "Watch the vault balance and backstop countdown live, then claim unilaterally once the DLP backstop is reached — no counterparty signature required.",
     icon: HandymanIcon,
-    container: m3Tokens.tertiaryContainer,
-    onContainer: m3Tokens.onTertiaryContainer,
+    container: hc.tertiaryContainer,
+    onContainer: hc.onTertiaryContainer,
   },
   {
     href: "/demo-control",
@@ -47,8 +47,8 @@ const ROLES = [
     description:
       "Operator view. Fast-forward the effective clock on stage via the demo-only advance_clock instruction — absent entirely from production builds.",
     icon: TuneIcon,
-    container: m3Tokens.secondaryContainer,
-    onContainer: m3Tokens.onSecondaryContainer,
+    container: hc.secondaryContainer,
+    onContainer: hc.onSecondaryContainer,
   },
 ];
 
@@ -72,12 +72,11 @@ const PILLARS = [
 
 export default function Home() {
   return (
-    <Box>
+    <Box sx={{ backgroundColor: hc.surface }}>
       {/* Hero */}
       <Box
         sx={{
-          background: `linear-gradient(160deg, ${m3Tokens.primaryContainer} 0%, ${m3Tokens.surface} 55%)`,
-          borderBottom: `1px solid ${m3Tokens.outlineVariant}`,
+          background: hc.heroGradient,
         }}
       >
         <Container maxWidth="md" sx={{ py: { xs: 8, md: 11 } }}>
@@ -86,19 +85,17 @@ export default function Home() {
             size="small"
             sx={{
               mb: 3,
-              backgroundColor: m3Tokens.surfaceContainerHighest,
-              color: m3Tokens.onSurfaceVariant,
+              backgroundColor: "rgba(255,255,255,0.18)",
+              color: "#FFFFFF",
+              fontWeight: 600,
             }}
           />
-          <Typography
-            variant="h2"
-            sx={{ color: m3Tokens.onPrimaryContainer, mb: 2, maxWidth: 640 }}
-          >
+          <Typography variant="h2" sx={{ color: "#FFFFFF", mb: 2, maxWidth: 640 }}>
             Retention funds, held where no one can quietly take them back.
           </Typography>
           <Typography
             variant="body1"
-            sx={{ color: m3Tokens.onSurfaceVariant, maxWidth: 560, mb: 4 }}
+            sx={{ color: "rgba(255,255,255,0.88)", maxWidth: 560, mb: 4 }}
           >
             Verita (Tahan) isolates construction retention in a program-owned
             Solana PDA. The main contractor cannot withdraw it under any
@@ -108,11 +105,15 @@ export default function Home() {
           <Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap>
             <Button
               variant="contained"
-              color="primary"
               size="large"
               component={Link}
               href="/contractor"
               endIcon={<ArrowForwardIcon />}
+              sx={{
+                backgroundColor: "#FFFFFF",
+                color: hc.primary,
+                "&:hover": { backgroundColor: "rgba(255,255,255,0.9)" },
+              }}
             >
               Start as Contractor
             </Button>
@@ -121,7 +122,14 @@ export default function Home() {
               size="large"
               component={Link}
               href="/subcontractor"
-              sx={{ borderColor: m3Tokens.outline, color: m3Tokens.onSurface }}
+              sx={{
+                borderColor: "rgba(255,255,255,0.6)",
+                color: "#FFFFFF",
+                "&:hover": {
+                  borderColor: "#FFFFFF",
+                  backgroundColor: "rgba(255,255,255,0.1)",
+                },
+              }}
             >
               Start as Subcontractor
             </Button>
@@ -143,8 +151,8 @@ export default function Home() {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    backgroundColor: m3Tokens.surfaceContainerHigh,
-                    color: m3Tokens.primary,
+                    backgroundColor: hc.surfaceContainerHigh,
+                    color: hc.primary,
                   }}
                 >
                   <pillar.icon />
@@ -170,6 +178,8 @@ export default function Home() {
                   height: "100%",
                   display: "flex",
                   flexDirection: "column",
+                  backgroundColor: hc.surfaceContainerLow,
+                  borderColor: hc.outlineVariant,
                 }}
               >
                 <CardContent sx={{ flexGrow: 1, p: 3 }}>
@@ -200,7 +210,7 @@ export default function Home() {
                     component={Link}
                     href={role.href}
                     endIcon={<ArrowForwardIcon />}
-                    sx={{ color: m3Tokens.primary }}
+                    sx={{ color: hc.primary }}
                   >
                     Open
                   </Button>
